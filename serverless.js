@@ -12,7 +12,7 @@ const DEFAULTS = {
   exclude: ['.git/**', '.gitignore', '.DS_Store']
 }
 
-class TencentFlask extends Component {
+class TencentDjango extends Component {
   getDefaultProtocol(protocols) {
     if (protocols.map((i) => i.toLowerCase()).includes('https')) {
       return 'https'
@@ -156,4 +156,4 @@ class TencentFlask extends Component {
   }
 }
 
-module.exports = TencentFlask
+module.exports = TencentDjango
