@@ -228,7 +228,7 @@ def test():
         },
         "httpMethod": "POST"
     }
-    print(handle_request(event, None))
+    print(main_handler(event, None))
 
 
 if __name__ == "__main__":
