@@ -134,7 +134,7 @@ $ sls --debug
 
 ### 4. 移除
 
-通过以下命令移除部署的 API 网关
+通过以下命令移除部署的服务
 
 ```shell
 $ sls remove --debug
