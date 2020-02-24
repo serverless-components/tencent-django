@@ -9,8 +9,6 @@ django:
   region: ap-guangzhou
   component: '@gosls/tencent-django'
   inputs:
-    requirements:
-      dockerizePip: true
     region: ap-guangzhou
     djangoProjectName: myproject
     functionName: flask-function
@@ -47,7 +45,6 @@ Main param description
 
 | Param                                               | Required/Optional |   Default    | Description                                                                                 |
 | --------------------------------------------------- | :---------------: | :----------: | :------------------------------------------------------------------------------------------ |
-| requirements                                        |     Optional      |              | [requiements](https://github.com/yugasun/python-requirements/blob/master/docs/configure.md) |
 | region                                              |     Optional      | ap-guangzhou |                                                                                             |
 | djangoProjectName                                   |     Required      |              | Django Projct Name                                                                |
 | functionName                                        |     Optional      |              | ServerlessCloudFunction Name                                                                |
