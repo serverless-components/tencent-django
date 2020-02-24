@@ -1,7 +1,7 @@
 {
   "name": "@gosls/tencent-django",
   "description": "Tencent Cloud Python Django Serverless Component",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "serverless.js",
   "publishConfig": {
     "access": "public"
@@ -49,7 +49,6 @@
     "@serverless/core": "^1.1.1",
     "@serverless/tencent-apigateway": "^2.0.4",
     "@serverless/tencent-scf": "^2.0.9",
-    "@yugasun/python-requirements": "^0.1.2",
     "ext": "^1.4.0",
     "type": "^2.0.0"
   },

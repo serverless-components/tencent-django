@@ -107,6 +107,19 @@ DjangoTest:
 
 注意，这里的djangoProjectName必须要和你的项目名称一致！
 
+并将python所需要的依赖安装到项目目录，例如本实例需要`Django`，所以可以通过`pip`进行安装：
+
+```
+pip install Django -t ./
+```
+
+如果因为网络问题，可以考虑使用国内源，例如：
+
+```
+pip install Django -t ./ -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+
 - [更多配置](https://github.com/serverless-components/tencent-flask/blob/master/docs/configure.md)
 
 ### 3. 部署

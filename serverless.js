@@ -88,6 +88,9 @@ class TencentDjango extends Component {
   }
 
   async default(inputs = {}) {
+    if (!inputs.djangoProjectName) {
+      throw new Error(`'djangoProjectName' is required in serverless.yaml`)
+    }
     inputs = await this.prepareInputs(inputs)
 
     const tencentCloudFunction = await this.load('@serverless/tencent-scf')
