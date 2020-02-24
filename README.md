@@ -2,7 +2,7 @@
 
 ## 简介
 
-腾讯云 Django Serverless Component, 支持 Restful API 服务的部署，不支持 Flask Command.
+腾讯云 Django Serverless Component, 支持 Restful API 服务的部署.
 
 ## 目录
 
@@ -120,7 +120,7 @@ pip install Django -t ./ -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
 
-- [更多配置](https://github.com/serverless-components/tencent-flask/blob/master/docs/configure.md)
+- [更多配置](docs/configure.md)
 
 ### 3. 部署
 

@@ -11,7 +11,7 @@ django:
   inputs:
     region: ap-guangzhou
     djangoProjectName: myproject
-    functionName: flask-function
+    functionName: django-function
     serviceName: mytest
     serviceId: service-np1uloxw
     code: ./code
