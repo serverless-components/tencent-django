@@ -72,10 +72,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gosls/tencent-django.git"
+    "url": "git+https://github.com/serverless-components/tencent-django.git"
   },
   "bugs": {
-    "url": "https://github.com/gosls/tencent-django/issues"
+    "url": "https://github.com/serverless-components/tencent-django/issues"
   },
-  "homepage": "https://github.com/gosls/tencent-django#readme"
+  "homepage": "https://github.com/serverless-components/tencent-django#readme"
 }

@@ -7,7 +7,7 @@
 
 django:
   region: ap-guangzhou
-  component: '@gosls/tencent-django'
+  component: '@serverless/tencent-django'
   inputs:
     region: ap-guangzhou
     djangoProjectName: myproject

@@ -83,7 +83,7 @@ $ touch serverless.yml
 
 ```yml
 DjangoTest:
-  component: '@gosls/tencent-django'
+  component: '@serverless/tencent-django'
   inputs:
     region: ap-guangzhou
     functionName: DjangoFunctionTest
