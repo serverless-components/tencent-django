@@ -1,3 +1,5 @@
+[![Serverless Django Tencent Cloud](https://img.serverlesscloud.cn/202031/1583057395084-django_%E9%95%BF.png)](http://serverless.com)
+
 # 腾讯云 Django Serverless Component
 
 ## 简介
