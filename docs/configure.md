@@ -43,16 +43,16 @@ django:
 
 Main param description
 
-| Param                                               | Required/Optional |   Default    | Description                                                                                 |
-| --------------------------------------------------- | :---------------: | :----------: | :------------------------------------------------------------------------------------------ |
-| region                                              |     Optional      | ap-guangzhou |                                                                                             |
-| djangoProjectName                                   |     Required      |              | Django Projct Name                                                                |
-| functionName                                        |     Optional      |              | ServerlessCloudFunction Name                                                                |
-| serviceName                                         |     Optional      |              | API-Gateway service name, default to create a new serivce                                   |
-| serviceId                                           |     Optional      |              | API-Gateway service id, if it has will use this APII-Gateway service                        |
-| code                                                |     Optional      |              | Default is current working directory                                                        |
-| [functionConf](#funtionConf-param-description)      |     Optional      |              | Function configure                                                                          |
-| [apigatewayConf](#apigatewayConf-param-description) |     Optional      |              | API-Gateway configure                                                                       |
+| Param                                               | Required/Optional |   Default    | Description                                                          |
+| --------------------------------------------------- | :---------------: | :----------: | :------------------------------------------------------------------- |
+| region                                              |     Optional      | ap-guangzhou |                                                                      |
+| djangoProjectName                                   |     Required      |              | Django Projct Name                                                   |
+| functionName                                        |     Optional      |              | ServerlessCloudFunction Name                                         |
+| serviceName                                         |     Optional      |              | API-Gateway service name, default to create a new serivce            |
+| serviceId                                           |     Optional      |              | API-Gateway service id, if it has will use this APII-Gateway service |
+| code                                                |     Optional      |              | Default is current working directory                                 |
+| [functionConf](#funtionConf-param-description)      |     Optional      |              | Function configure                                                   |
+| [apigatewayConf](#apigatewayConf-param-description) |     Optional      |              | API-Gateway configure                                                |
 
 ### funtionConf param description
 
