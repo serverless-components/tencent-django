@@ -1,7 +1,7 @@
 {
   "name": "@serverless/tencent-django",
   "description": "Tencent Cloud Python Django Serverless Component",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "serverless.js",
   "publishConfig": {
     "access": "public"
@@ -24,12 +24,6 @@
   },
   "author": "Dfounderliu",
   "license": "Apache-2.0",
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
-  },
   "lint-staged": {
     "**/*.{js,ts,tsx}": [
       "eslint --fix --ext .js,.ts,.tsx .",
@@ -47,8 +41,7 @@
   },
   "dependencies": {
     "@serverless/core": "^1.1.1",
-    "@serverless/tencent-apigateway": "^2.1.4",
-    "@serverless/tencent-scf": "^3.0.0",
+    "@serverless/tencent-framework": "^0.0.1",
     "ext": "^1.4.0",
     "type": "^2.0.0"
   },
