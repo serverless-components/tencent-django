@@ -57,7 +57,7 @@ class TencentDjango extends Component {
     const framworkOutpus = await Framework({
       ...inputs,
       ...{
-        framework: 'tencent-tornado'
+        framework: 'django'
       }
     })
 
@@ -71,7 +71,7 @@ class TencentDjango extends Component {
     await Framework.remove({
       ...inputs,
       ...{
-        framework: 'tencent-django'
+        framework: 'django'
       }
     })
     this.state = {}
