@@ -1,0 +1,26 @@
+component: django # (required) name of the component. In that case, it's express.
+name: mydjangoDemo # (required) name of your express component instance.
+org: mydjangoDemo # (optional) serverless dashboard org. default is the first org you created during signup.
+app: mydjangoDemo # (optional) serverless dashboard app. default is the same as the name property.
+stage: dev # (optional) serverless dashboard stage. default is dev.
+
+inputs:
+  region: ap-guangzhou
+  functionName: DjangoFunction
+  djangoProjectName: mydjangocomponent
+  src:
+    bucket: my-bucket
+    src: ./src
+  functionConf:
+    timeout: 10
+    memorySize: 256
+    environment:
+      variables:
+        TEST: vale
+    vpcConfig:
+      subnetId: ''
+      vpcId: ''
+  apigatewayConf:
+    protocols:
+      - https
+    environment: release
