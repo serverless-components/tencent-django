@@ -1,6 +1,6 @@
 {
-  "name": "@serverless/express",
-  "version": "0.0.8",
+  "name": "@serverless/django",
+  "version": "0.0.1",
   "main": "src/serverless.js",
   "publishConfig": {
     "access": "public"
