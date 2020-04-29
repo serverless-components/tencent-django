@@ -49,7 +49,7 @@ class Django extends Component {
     const cos = new Cos(credentials, region)
     // 创建存储桶 + 设置生命周期
     if (!inputs.code.bucket) {
-      objectinputs.code.bucket = `sls-cloudfunction-${region}-code`
+      inputs.code.bucket = `sls-cloudfunction-${region}-code`
       await cos.deploy({
         bucket: inputs.code.bucket + '-' + appId,
         force: true,
