@@ -1,5 +1,8 @@
+[![Serverless Django Tencent Cloud](https://img.serverlesscloud.cn/202031/1583057395084-django_%E9%95%BF.png)](http://serverless.com)
 
-**腾讯云 Django 组件** -通过使用 [Tencent Serverless Framework](https://github.com/serverless/components/tree/cloud)，基于云上 Serverless 服务（如对象存储等），实现“0”配置，便捷开发，极速部署您的 Django 网页应用。
+# 腾讯云 Django Serverless Component
+
+通过使用 [Tencent Serverless Framework](https://github.com/serverless/components/tree/cloud)，基于云上 Serverless 服务（如对象存储等），实现“0”配置，便捷开发，极速部署您的 Django 网页应用。
 
 Django 特性介绍：
 - **"0"配置**：只需要关心项目代码，之后部署即可，Serverless Framework 会搞定所有配置。
