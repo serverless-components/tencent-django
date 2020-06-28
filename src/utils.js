@@ -1,11 +1,7 @@
-const path = require('path')
-const fs = require('fs')
-const { copySync } = require('fs-extra')
 const { Domain } = require('tencent-component-toolkit')
 const ensureObject = require('type/object/ensure')
 const ensureIterable = require('type/iterable/ensure')
 const ensureString = require('type/string/ensure')
-const download = require('download')
 const CONFIGS = require('./config')
 
 /*
@@ -29,7 +25,6 @@ const generateId = () =>
  * @param ${object} config - the component config
  */
 const packageCode = async (instance, sourceDirectory) => {
-
   // zip the source directory with the shim and the sdk
   console.log(`Packaging ${CONFIGS.frameworkFullname} application...`)
   console.log(`Zipping files...`)
@@ -182,6 +177,7 @@ const prepareInputs = async (instance, credentials, inputs = {}) => {
 
   // 对apigw inputs进行标准化
   const apigatewayConf = inputs.apigatewayConf ? inputs.apigatewayConf : {}
+  apigatewayConf.isDisabled = apigatewayConf.isDisabled === true
   apigatewayConf.fromClientRemark = fromClientRemark
   apigatewayConf.serviceName = inputs.serviceName
   apigatewayConf.description = `Serverless Framework Tencent-${capitalString(
@@ -203,6 +199,20 @@ const prepareInputs = async (instance, credentials, inputs = {}) => {
       }
     }
   ]
+  if (apigatewayConf.usagePlan) {
+    apigatewayConf.endpoints[0].usagePlan = {
+      usagePlanId: apigatewayConf.usagePlan.usagePlanId,
+      usagePlanName: apigatewayConf.usagePlan.usagePlanName,
+      usagePlanDesc: apigatewayConf.usagePlan.usagePlanDesc,
+      maxRequestNum: apigatewayConf.usagePlan.maxRequestNum
+    }
+  }
+  if (apigatewayConf.auth) {
+    apigatewayConf.endpoints[0].auth = {
+      secretName: apigatewayConf.auth.secretName,
+      secretIds: apigatewayConf.auth.secretIds
+    }
+  }
 
   // 对cns inputs进行标准化
   const tempCnsConf = {}

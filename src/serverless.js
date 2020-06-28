@@ -5,8 +5,6 @@ const { MultiApigw, Scf, Apigw, Cos, Cns } = require('tencent-component-toolkit'
 const { TypeError } = require('tencent-component-toolkit/src/utils/error')
 const { packageCode, getDefaultProtocol, deleteRecord, prepareInputs } = require('./utils')
 const ensureIterable = require('type/iterable/ensure')
-const download = require('download')
-const CONFIGS = require('./config')
 
 class Django extends Component {
   getCredentials() {
@@ -125,6 +123,9 @@ class Django extends Component {
   }
 
   async deployApigateway(credentials, inputs, regionList) {
+    if (inputs.isDisabled) {
+      return {}
+    }
     const apigw = new MultiApigw(credentials, regionList)
     inputs.oldState = {
       apiList: (this.state[regionList[0]] && this.state[regionList[0]].apiList) || []
@@ -204,14 +205,14 @@ class Django extends Component {
 
     const credentials = this.getCredentials()
 
-
     // 标准化之前对Django组件的特殊逻辑
 
-    const tempPath =  typeof inputs.src === 'object'
-      ? inputs.src
-      : {
-        src: inputs.src
-      }
+    const tempPath =
+      typeof inputs.src === 'object'
+        ? inputs.src
+        : {
+            src: inputs.src
+          }
 
     // unzip source zip file
     console.log(`Unzipping ${tempPath.src || 'files'}...`)
@@ -219,7 +220,10 @@ class Django extends Component {
     console.log(`Files unzipped into ${sourceDirectory}...`)
 
     if (!inputs.djangoProjectName) {
-      throw new TypeError('PARAMETER_DJANGO_DEPLOY', `'djangoProjectName' is required in serverless.yaml`)
+      throw new TypeError(
+        'PARAMETER_DJANGO_DEPLOY',
+        `'djangoProjectName' is required in serverless.yaml`
+      )
     }
     const src = path.join(__dirname, 'component')
     await this.copyDir(src, sourceDirectory)
@@ -237,7 +241,6 @@ class Django extends Component {
     inputs.include = ensureIterable(inputs.include, { default: [] })
     inputs.include.push(sourceDirectory)
 
-
     // 对Inputs内容进行标准化
     const { regionList, functionConf, apigatewayConf, cnsConf } = await prepareInputs(
       this,
@@ -245,7 +248,7 @@ class Django extends Component {
       inputs
     )
 
-    console.log("functionConf: ", functionConf)
+    console.log('functionConf: ', functionConf)
 
     // 部署函数 + API网关
     const outputs = {}
