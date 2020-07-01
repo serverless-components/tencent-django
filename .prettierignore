@@ -4,3 +4,4 @@ node_modules
 CHANGELOG.md
 *.test.js
 example
+src/component
