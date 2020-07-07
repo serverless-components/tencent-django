@@ -1,4 +1,4 @@
-component: django@dev
+component: django
 name: djangoDemo
 org: orgDemo
 app: appDemo

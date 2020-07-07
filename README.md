@@ -48,7 +48,7 @@ $ touch serverless.yml
 在`serverless.yml`中进行如下配置：
 
 ```yml
-component: django@dev
+component: django
 name: djangoDemo
 org: orgDemo
 app: appDemo
