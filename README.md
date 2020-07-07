@@ -73,8 +73,9 @@ inputs:
     environment: release
 ```
 
-> !
-> 如果您自己创建项目，请将 Python 所需要的依赖安装到项目目录，例如本实例需要`Django`，所以可以通过`pip`进行安装：
+[更多配置](./docs/configure.md)
+
+> 注意：如果您自己创建项目，请将 Python 所需要的依赖安装到项目目录，例如本实例需要`Django`，所以可以通过`pip`进行安装：
 
 ```
 pip install Django -t ./
