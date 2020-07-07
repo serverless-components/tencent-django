@@ -1,10 +1,10 @@
 name: django
-version: 0.0.1
-author: anycodes
-org: anycodes
-description: Deploys a serverless Django application onto Tencent SCF and Tencent APIGateway.
+version: dev
+author: Tencent Cloud, Inc.
+org: Tencent Cloud, Inc.
+description: Deploy a Django application onto Tencent SCF and APIGateway.
 keywords: tencent, serverless, django
-repo: https://github.com/serverless-components/tencent-django/tree/v2
-readme: https://github.com/serverless-components/tencent-django/tree/v2
+repo: https://github.com/serverless-components/tencent-django/
+readme: https://github.com/serverless-components/tencent-django/tree/master/README.md
 license: MIT
 main: ./src

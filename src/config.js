@@ -1,6 +1,6 @@
 const CONFIGS = {
-  framework: 'django',
-  frameworkFullname: 'Django',
+  compName: 'django',
+  compFullname: 'Django',
   handler: 'index.main_handler',
   runtime: 'Python3.6',
   exclude: ['.git/**', '.gitignore', '.DS_Store'],

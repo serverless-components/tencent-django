@@ -1,12 +1,13 @@
-const { Component } = require('@serverless/core')
 const fs = require('fs')
 const path = require('path')
+const { Component } = require('@serverless/core')
 const { MultiApigw, Scf, Apigw, Cos, Cns } = require('tencent-component-toolkit')
 const { TypeError } = require('tencent-component-toolkit/src/utils/error')
 const { packageCode, getDefaultProtocol, deleteRecord, prepareInputs } = require('./utils')
 const ensureIterable = require('type/iterable/ensure')
+const CONFIGS = require('./config')
 
-class Django extends Component {
+class ServerlessComponent extends Component {
   getCredentials() {
     const { tmpSecrets } = this.credentials.tencent
 
@@ -84,7 +85,7 @@ class Django extends Component {
     }
   }
 
-  async deployFunction(credentials, inputs, regionList, outputs, sourceDirectory) {
+  async deployFunction(credentials, inputs, regionList, sourceDirectory) {
     // if set bucket and object not pack code
     let packageDir
     if (!inputs.code.bucket || !inputs.code.object) {
@@ -93,6 +94,7 @@ class Django extends Component {
 
     // 上传代码到COS
     const uploadCodeHandler = []
+    const outputs = {}
 
     for (let eveRegionIndex = 0; eveRegionIndex < regionList.length; eveRegionIndex++) {
       const curRegion = regionList[eveRegionIndex]
@@ -114,6 +116,26 @@ class Django extends Component {
           ...(this.state[curRegion] ? this.state[curRegion] : {}),
           ...outputs[curRegion]
         }
+
+        // default version is $LATEST
+        outputs[curRegion].lastVersion = scfOutput.LastVersion
+          ? scfOutput.LastVersion
+          : this.state.lastVersion || '$LATEST'
+
+        // default traffic is 1.0, it can also be 0, so we should compare to undefined
+        outputs[curRegion].traffic = scfOutput.Traffic
+          ? scfOutput.Traffic
+          : this.state.traffic !== undefined
+          ? this.state.traffic
+          : 1
+
+        if (outputs[curRegion].traffic !== 1 && scfOutput.ConfigTrafficVersion) {
+          outputs[curRegion].configTrafficVersion = scfOutput.ConfigTrafficVersion
+          this.state.configTrafficVersion = scfOutput.ConfigTrafficVersion
+        }
+
+        this.state.lastVersion = outputs[curRegion].lastVersion
+        this.state.traffic = outputs[curRegion].traffic
       }
       uploadCodeHandler.push(funcDeployer())
     }
@@ -201,11 +223,9 @@ class Django extends Component {
   }
 
   async deploy(inputs) {
-    console.log(`Deploying Django App...`)
+    console.log(`Deploying ${CONFIGS.compFullname} App...`)
 
     const credentials = this.getCredentials()
-
-    // 标准化之前对Django组件的特殊逻辑
 
     const tempPath =
       typeof inputs.src === 'object'
@@ -221,12 +241,12 @@ class Django extends Component {
 
     if (!inputs.djangoProjectName) {
       throw new TypeError(
-        'PARAMETER_DJANGO_DEPLOY',
+        `PARAMETER_${CONFIGS.compName.toUpperCase()}_DEPLOY`,
         `'djangoProjectName' is required in serverless.yaml`
       )
     }
-    const src = path.join(__dirname, 'component')
-    await this.copyDir(src, sourceDirectory)
+    const shims = path.join(__dirname, '_shims')
+    await this.copyDir(shims, sourceDirectory)
     const indexPyFile = await fs.readFileSync(
       path.join(path.resolve(sourceDirectory), 'index.py'),
       'utf8'
@@ -248,14 +268,18 @@ class Django extends Component {
       inputs
     )
 
-    console.log('functionConf: ', functionConf)
-
     // 部署函数 + API网关
     const outputs = {}
-    const [apigwOutputs, functionOutputs] = await Promise.all([
-      this.deployApigateway(credentials, apigatewayConf, regionList, outputs),
-      this.deployFunction(credentials, functionConf, regionList, outputs, sourceDirectory)
-    ])
+    const deployTasks = [
+      this.deployFunction(credentials, functionConf, regionList, sourceDirectory)
+    ]
+    // support apigatewayConf.isDisabled
+    if (apigatewayConf.isDisabled !== true) {
+      deployTasks.push(this.deployApigateway(credentials, apigatewayConf, regionList, outputs))
+    } else {
+      this.state.apigwDisabled = true
+    }
+    const [functionOutputs, apigwOutputs = {}] = await Promise.all(deployTasks)
 
     // optimize outputs for one region
     if (regionList.length === 1) {
@@ -281,7 +305,7 @@ class Django extends Component {
   }
 
   async remove() {
-    console.log(`Removing Django App...`)
+    console.log(`Removing ${CONFIGS.compFullname} App...`)
 
     const { state } = this
     const { regionList = [] } = state
@@ -323,4 +347,4 @@ class Django extends Component {
   }
 }
 
-module.exports = Django
+module.exports = ServerlessComponent

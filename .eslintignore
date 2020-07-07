@@ -3,4 +3,4 @@ dist
 node_modules
 example
 *.test.js
-src/component
+src/_shims

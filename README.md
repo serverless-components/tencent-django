@@ -33,7 +33,7 @@ $ mkdir myDjangoDemo && cd myDjangoDemo
 通过如下命令和模板链接，快速创建一个静态网站托管应用：
 
 ```
-$ serverless create --template-url https://github.com/serverless-tencent/tencent-django/tree/v2/example
+$ serverless create --template-url https://github.com/serverless-tencent/tencent-django/tree/master/example
 $ cd example
 ```
 
@@ -48,19 +48,16 @@ $ touch serverless.yml
 在`serverless.yml`中进行如下配置：
 
 ```yml
-component: django # (required) name of the component. In that case, it's express.
-name: mydjangoDemo # (required) name of your express component instance.
-org: mydjangoDemo # (optional) serverless dashboard org. default is the first org you created during signup.
-app: mydjangoDemo # (optional) serverless dashboard app. default is the same as the name property.
-stage: dev # (optional) serverless dashboard stage. default is dev.
+component: django@dev
+name: djangoDemo
+org: orgDemo
+app: appDemo
+stage: dev
 
 inputs:
   region: ap-guangzhou
-  functionName: DjangoFunction
-  djangoProjectName: mydjangocomponent #您的项目文件夹名称
-  src:
-    bucket: 输入您上传项目的存储桶名称
-    src: ./src
+  djangoProjectName: mydjangocomponent
+  src: ./src
   functionConf:
     timeout: 10
     memorySize: 256
@@ -117,7 +114,5 @@ TENCENT_SECRET_ID=123
 TENCENT_SECRET_KEY=123
 ```
 
-> ?
->
 > - 如果没有腾讯云账号，请先 [注册新账号](https://cloud.tencent.com/register)。
 > - 如果已有腾讯云账号，可以在 [API 密钥管理](https://console.cloud.tencent.com/cam/capi) 中获取 SecretId 和 SecretKey。

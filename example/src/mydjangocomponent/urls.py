@@ -18,5 +18,6 @@ from django.urls import path
 import  mydjangoapplication.views
 
 urlpatterns = [
-    path('index/', mydjangoapplication.views.index),
+    path('author/', mydjangoapplication.views.author),
+    path('', mydjangoapplication.views.index),
 ]
