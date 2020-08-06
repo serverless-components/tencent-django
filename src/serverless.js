@@ -323,13 +323,16 @@ class ServerlessComponent extends Component {
           functionName: curState.functionName,
           namespace: curState.namespace
         })
-        await apigw.remove({
-          created: curState.created,
-          environment: curState.environment,
-          serviceId: curState.serviceId,
-          apiList: curState.apiList,
-          customDomains: curState.customDomains
-        })
+        // if disable apigw, no need to remove
+        if (state.apigwDisabled !== true) {
+          await apigw.remove({
+            created: curState.created,
+            environment: curState.environment,
+            serviceId: curState.serviceId,
+            apiList: curState.apiList,
+            customDomains: curState.customDomains
+          })
+        }
       }
       removeHandlers.push(handler())
     }
