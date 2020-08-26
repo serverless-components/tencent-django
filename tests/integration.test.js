@@ -7,11 +7,12 @@ jest.setTimeout(300000)
 const instanceYaml = {
   org: 'orgDemo',
   app: 'appDemo',
-  component: 'django@dev',
+  component: 'django',
   name: `django-integration-tests-${generateId()}`,
   stage: 'dev',
   inputs: {
     djangoProjectName: 'djangotest',
+    src: './src',
     region: 'ap-guangzhou',
     apigatewayConf: { environment: 'test' }
   }
