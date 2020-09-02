@@ -1,4 +1,5 @@
 const { generateId, getServerlessSdk } = require('./utils')
+const { join } = require('path')
 
 // set enough timeout for deployment to finish
 jest.setTimeout(300000)
@@ -11,8 +12,8 @@ const instanceYaml = {
   name: `django-integration-tests-${generateId()}`,
   stage: 'dev',
   inputs: {
-    djangoProjectName: 'djangotest',
-    src: './src',
+    djangoProjectName: 'mydjangocomponent',
+    src: join(__dirname, '..', 'example/src'),
     region: 'ap-guangzhou',
     apigatewayConf: { environment: 'test' }
   }
