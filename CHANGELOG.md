@@ -1,3 +1,10 @@
+## [0.0.6](https://github.com/serverless-components/tencent-django/compare/v0.0.5...v0.0.6) (2020-09-02)
+
+
+### Bug Fixes
+
+* support cfs config ([47a2beb](https://github.com/serverless-components/tencent-django/commit/47a2beb9ff0c2e6da152f252d2f9082214844afd))
+
 ## [0.0.5](https://github.com/serverless-components/tencent-django/compare/v0.0.4...v0.0.5) (2020-08-26)
 
 
