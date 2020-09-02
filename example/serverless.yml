@@ -14,9 +14,6 @@ inputs:
     environment:
       variables:
         TEST: vale
-    vpcConfig:
-      subnetId: ''
-      vpcId: ''
   apigatewayConf:
     protocols:
       - https

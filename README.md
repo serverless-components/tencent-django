@@ -41,7 +41,7 @@ $ cd example
 
 在本地创建`serverless.yml`文件：
 
-```shell
+```bash
 $ touch serverless.yml
 ```
 
@@ -64,16 +64,13 @@ inputs:
     environment:
       variables:
         TEST: vale
-    vpcConfig:
-      subnetId: ''
-      vpcId: ''
   apigatewayConf:
     protocols:
       - https
     environment: release
 ```
 
-[更多配置](./docs/configure.md)
+[更多配置](https://github.com/serverless-tencent/tencent-django/tree/master/docs/configure.md)
 
 > 注意：如果您自己创建项目，请将 Python 所需要的依赖安装到项目目录，例如本实例需要`Django`，所以可以通过`pip`进行安装：
 
@@ -85,29 +82,29 @@ pip install Django -t ./
 
 如您的账号未 [登录](https://cloud.tencent.com/login) 或 [注册](https://cloud.tencent.com/register) 腾讯云，您可以直接通过**微信**扫描命令行中的二维码进行授权登录和注册。
 
-通过`sls`命令进行部署，并可以添加`--debug`参数查看部署过程中的信息
+通过 `sls` 命令进行部署，并可以添加 `--debug` 参数查看部署过程中的信息
 
-```shell
-$ sls --debug
+```bash
+$ sls deploy
 ```
 
 #### 5.移除
 
 通过以下命令移除部署的服务：
 
-```shell
+```bash
 $ sls remove --debug
 ```
 
 #### 账号配置（可选）
 
-当前默认支持 CLI 扫描二维码登录，如您希望配置持久的环境变量/密钥信息，也可以本地创建`.env`文件：
+当前默认支持 CLI 扫描二维码登录，如您希望配置持久的环境变量/密钥信息，也可以本地创建 `.env` 文件：
 
-```shell
+```bash
 $ touch .env # 腾讯云的配置信息
 ```
 
-在`.env`文件中配置腾讯云的 SecretId 和 SecretKey 信息并保存：
+在`.env`文件中配置腾讯云的 `SecretId` 和 `SecretKey` 信息并保存：
 
 ```text
 # .env
