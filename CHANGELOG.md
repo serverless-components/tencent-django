@@ -1,3 +1,10 @@
+## [0.0.7](https://github.com/serverless-components/tencent-django/compare/v0.0.6...v0.0.7) (2020-09-02)
+
+
+### Bug Fixes
+
+* update tencnet-component-toolkit for api mark ([57b63b8](https://github.com/serverless-components/tencent-django/commit/57b63b808d25d8425687d607397df8ad484271fa))
+
 ## [0.0.6](https://github.com/serverless-components/tencent-django/compare/v0.0.5...v0.0.6) (2020-09-02)
 
 
