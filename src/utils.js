@@ -184,12 +184,15 @@ const uploadCodeToCos = async (instance, appId, credentials, inputs, region) => 
       if (instance.codeInjected === true) {
         await instance.uploadSourceZipToCOS(zipPath, uploadUrl, {}, {})
       } else {
-        const slsSDKEntries = instance.getSDKEntries('_shims/handler.handler')
-
         const compShimsPath = await modifyEntryFile(inputs)
-        await instance.uploadSourceZipToCOS(zipPath, uploadUrl, slsSDKEntries, {
-          '': compShimsPath
-        })
+        await instance.uploadSourceZipToCOS(
+          zipPath,
+          uploadUrl,
+          {},
+          {
+            '': compShimsPath
+          }
+        )
         instance.codeInjected = true
       }
       console.log(`Upload ${objectName} to bucket ${bucketName} success`)
