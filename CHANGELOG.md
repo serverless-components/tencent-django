@@ -1,3 +1,11 @@
+## [0.0.8](https://github.com/serverless-components/tencent-django/compare/v0.0.7...v0.0.8) (2020-09-07)
+
+
+### Bug Fixes
+
+* update deploy flow for multi region ([ebcdc80](https://github.com/serverless-components/tencent-django/commit/ebcdc80aab47f2d8ef458e0b0157eeb9b3f033a8))
+* update deps ([126095d](https://github.com/serverless-components/tencent-django/commit/126095db9789290df683cba766973b6bbcaf4294))
+
 ## [0.0.7](https://github.com/serverless-components/tencent-django/compare/v0.0.6...v0.0.7) (2020-09-02)
 
 
