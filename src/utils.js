@@ -1,5 +1,6 @@
 const path = require('path')
-const { Domain, Cos } = require('tencent-component-toolkit')
+const fs = require('fs')
+const { Cos } = require('tencent-component-toolkit')
 const ensureObject = require('type/object/ensure')
 const ensureIterable = require('type/iterable/ensure')
 const ensureString = require('type/string/ensure')
@@ -15,8 +16,43 @@ const generateId = () =>
     .toString(36)
     .substring(6)
 
+const deepClone = (obj) => {
+  return JSON.parse(JSON.stringify(obj))
+}
+
 const getType = (obj) => {
   return Object.prototype.toString.call(obj).slice(8, -1)
+}
+
+const mergeJson = (sourceJson, targetJson) => {
+  Object.entries(sourceJson).forEach(([key, val]) => {
+    targetJson[key] = deepClone(val)
+  })
+  return targetJson
+}
+
+const capitalString = (str) => {
+  if (str.length < 2) {
+    return str.toUpperCase()
+  }
+
+  return `${str[0].toUpperCase()}${str.slice(1)}`
+}
+
+const getDefaultProtocol = (protocols) => {
+  return String(protocols).includes('https') ? 'https' : 'http'
+}
+
+const getDefaultFunctionName = () => {
+  return `${CONFIGS.compName}_component_${generateId()}`
+}
+
+const getDefaultServiceName = () => {
+  return 'serverless'
+}
+
+const getDefaultServiceDescription = () => {
+  return 'Created by Serverless Component'
 }
 
 const validateTraffic = (num) => {
@@ -59,6 +95,41 @@ const getCodeZipPath = async (instance, inputs) => {
   }
 
   return zipPath
+}
+
+/**
+ * modify entry file for django project
+ * @param {object} inputs function inputs
+ */
+const modifyEntryFile = async (inputs) => {
+  const copyDir = async (src, dst) => {
+    const paths = await fs.readdirSync(src)
+    if (!fs.existsSync(dst)) {
+      await fs.mkdirSync(dst)
+    }
+    for (let i = 0; i < paths.length; i++) {
+      const fstat = await fs.statSync(path.join(src, paths[i]))
+      if (fstat.isFile()) {
+        const readable = await fs.readFileSync(path.join(src, paths[i]))
+        await fs.writeFileSync(path.join(dst, paths[i]), readable)
+      } else {
+        if (!fs.existsSync(path.join(dst, paths[i]))) {
+          await fs.mkdirSync(path.join(dst, paths[i]))
+        }
+        await copyDir(path.join(src, paths[i]), path.join(dst, paths[i]))
+      }
+    }
+  }
+  const compShimsPath = `/tmp/_shims`
+  await copyDir(path.join(__dirname, '_shims'), compShimsPath)
+
+  // replace {{django_project}} in _shims/index.py to djangoProjectName
+  const indexPath = path.join(compShimsPath, 'index.py')
+  const indexPyFile = await fs.readFileSync(indexPath, 'utf8')
+  const replacedFile = indexPyFile.replace(eval('/{{django_project}}/g'), inputs.djangoProjectName)
+  await fs.writeFileSync(indexPath, replacedFile)
+
+  return compShimsPath
 }
 
 /**
@@ -107,12 +178,20 @@ const uploadCodeToCos = async (instance, appId, credentials, inputs, region) => 
         object: objectName,
         method: 'PUT'
       })
-      const slsSDKEntries = instance.getSDKEntries('_shims/handler.handler')
 
+      // if shims and sls sdk entries had been injected to zipPath, no need to injected again
       console.log(`Uploading code to bucket ${bucketName}`)
-      await instance.uploadSourceZipToCOS(zipPath, uploadUrl, slsSDKEntries, {
-        _shims: path.join(__dirname, '_shims')
-      })
+      if (instance.codeInjected === true) {
+        await instance.uploadSourceZipToCOS(zipPath, uploadUrl, {}, {})
+      } else {
+        const slsSDKEntries = instance.getSDKEntries('_shims/handler.handler')
+
+        const compShimsPath = await modifyEntryFile(inputs)
+        await instance.uploadSourceZipToCOS(zipPath, uploadUrl, slsSDKEntries, {
+          '': compShimsPath
+        })
+        instance.codeInjected = true
+      }
       console.log(`Upload ${objectName} to bucket ${bucketName} success`)
     }
   }
@@ -127,89 +206,6 @@ const uploadCodeToCos = async (instance, appId, credentials, inputs, region) => 
   }
 }
 
-/*
- * Packages framework app and injects shims and sdk
- *
- * @param ${instance} instance - the component instance
- * @param ${object} config - the component config
- */
-const packageCode = async (instance, sourceDirectory) => {
-  // zip the source directory with the shim and the sdk
-  console.log(`Packaging ${CONFIGS.compFullname} application...`)
-  console.log(`Zipping files...`)
-  console.log(sourceDirectory)
-  const zipPath = await instance.zip(String(sourceDirectory))
-  console.log(`Files zipped into ${zipPath}...`)
-
-  // save the zip path to state for lambda to use it
-  instance.state.zipPath = zipPath
-
-  return zipPath
-}
-
-const mergeJson = (sourceJson, targetJson) => {
-  for (const eveKey in sourceJson) {
-    if (targetJson.hasOwnProperty(eveKey)) {
-      if (['protocols', 'endpoints', 'customDomain'].indexOf(eveKey) != -1) {
-        for (let i = 0; i < sourceJson[eveKey].length; i++) {
-          const sourceEvents = JSON.stringify(sourceJson[eveKey][i])
-          const targetEvents = JSON.stringify(targetJson[eveKey])
-          if (targetEvents.indexOf(sourceEvents) == -1) {
-            targetJson[eveKey].push(sourceJson[eveKey][i])
-          }
-        }
-      } else {
-        if (typeof sourceJson[eveKey] != 'string') {
-          mergeJson(sourceJson[eveKey], targetJson[eveKey])
-        } else {
-          targetJson[eveKey] = sourceJson[eveKey]
-        }
-      }
-    } else {
-      targetJson[eveKey] = sourceJson[eveKey]
-    }
-  }
-  return targetJson
-}
-
-const capitalString = (str) => {
-  if (str.length < 2) {
-    return str.toUpperCase()
-  }
-
-  return `${str[0].toUpperCase()}${str.slice(1)}`
-}
-
-const getDefaultProtocol = (protocols) => {
-  if (protocols.map((i) => i.toLowerCase()).includes('https')) {
-    return 'https'
-  }
-  return 'http'
-}
-
-const deleteRecord = (newRecords, historyRcords) => {
-  const deleteList = []
-  for (let i = 0; i < historyRcords.length; i++) {
-    let temp = false
-    for (let j = 0; j < newRecords.length; j++) {
-      if (
-        newRecords[j].domain == historyRcords[i].domain &&
-        newRecords[j].subDomain == historyRcords[i].subDomain &&
-        newRecords[j].recordType == historyRcords[i].recordType &&
-        newRecords[j].value == historyRcords[i].value &&
-        newRecords[j].recordLine == historyRcords[i].recordLine
-      ) {
-        temp = true
-        break
-      }
-    }
-    if (!temp) {
-      deleteList.push(historyRcords[i])
-    }
-  }
-  return deleteList
-}
-
 const prepareInputs = async (instance, credentials, inputs = {}) => {
   // 对function inputs进行标准化
   const tempFunctionConf = inputs.functionConf ? inputs.functionConf : {}
@@ -220,23 +216,27 @@ const prepareInputs = async (instance, credentials, inputs = {}) => {
       : inputs.region
     : ['ap-guangzhou']
 
+  if (!inputs.djangoProjectName) {
+    throw new TypeError(
+      `PARAMETER_${CONFIGS.compName.toUpperCase()}_DEPLOY`,
+      `'djangoProjectName' is required in serverless.yaml`
+    )
+  }
+
   // chenck state function name
   const stateFunctionName =
     instance.state[regionList[0]] && instance.state[regionList[0]].functionName
-  // check state service id
-  const stateServiceId = instance.state[regionList[0]] && instance.state[regionList[0]].serviceId
-
   const functionConf = {
-    code:
-      typeof inputs.srcOriginal === 'object'
-        ? inputs.srcOriginal
-        : {
-            src: inputs.src
-          },
+    djangoProjectName: inputs.djangoProjectName,
+    code: {
+      src: inputs.src,
+      bucket: inputs.srcOriginal && inputs.srcOriginal.bucket,
+      object: inputs.srcOriginal && inputs.srcOriginal.object
+    },
     name:
       ensureString(inputs.functionName, { isOptional: true }) ||
       stateFunctionName ||
-      `${CONFIGS.compName}_component_${generateId()}`,
+      getDefaultFunctionName(),
     region: regionList,
     role: ensureString(tempFunctionConf.role ? tempFunctionConf.role : inputs.role, {
       default: ''
@@ -268,7 +268,12 @@ const prepareInputs = async (instance, credentials, inputs = {}) => {
     traffic: inputs.traffic,
     lastVersion: instance.state.lastVersion,
     eip: tempFunctionConf.eip === true,
-    l5Enable: tempFunctionConf.l5Enable === true
+    l5Enable: tempFunctionConf.l5Enable === true,
+    timeout: tempFunctionConf.timeout ? tempFunctionConf.timeout : CONFIGS.timeout,
+    memorySize: tempFunctionConf.memorySize ? tempFunctionConf.memorySize : CONFIGS.memorySize,
+    tags: ensureObject(tempFunctionConf.tags ? tempFunctionConf.tags : inputs.tag, {
+      default: null
+    })
   }
 
   // validate traffic
@@ -277,73 +282,55 @@ const prepareInputs = async (instance, credentials, inputs = {}) => {
   }
   functionConf.needSetTraffic = inputs.traffic !== undefined && functionConf.lastVersion
 
-  functionConf.tags = ensureObject(tempFunctionConf.tags ? tempFunctionConf.tags : inputs.tag, {
-    default: null
-  })
-
-  if (inputs.functionConf) {
-    functionConf.timeout = inputs.functionConf.timeout
-      ? inputs.functionConf.timeout
-      : CONFIGS.timeout
-    functionConf.memorySize = inputs.functionConf.memorySize
-      ? inputs.functionConf.memorySize
-      : CONFIGS.memorySize
-    if (inputs.functionConf.environment) {
-      functionConf.environment = inputs.functionConf.environment
-    }
-    if (inputs.functionConf.vpcConfig) {
-      functionConf.vpcConfig = inputs.functionConf.vpcConfig
-    }
+  if (tempFunctionConf.environment) {
+    functionConf.environment = inputs.functionConf.environment
+  }
+  if (tempFunctionConf.vpcConfig) {
+    functionConf.vpcConfig = inputs.functionConf.vpcConfig
   }
 
   // 对apigw inputs进行标准化
-  const apigatewayConf = inputs.apigatewayConf ? inputs.apigatewayConf : {}
-  apigatewayConf.isDisabled = apigatewayConf.isDisabled === true
-  apigatewayConf.fromClientRemark = fromClientRemark
-  apigatewayConf.serviceName = inputs.serviceName
-  apigatewayConf.description = `Serverless Framework Tencent-${capitalString(
-    CONFIGS.compName
-  )} Component`
-  apigatewayConf.serviceId = inputs.serviceId || stateServiceId
-  apigatewayConf.region = functionConf.region
-  apigatewayConf.protocols = apigatewayConf.protocols || ['http']
-  apigatewayConf.environment = apigatewayConf.environment ? apigatewayConf.environment : 'release'
-  apigatewayConf.endpoints = [
-    {
-      path: '/',
-      enableCORS: apigatewayConf.enableCORS,
-      serviceTimeout: apigatewayConf.serviceTimeout,
-      method: 'ANY',
-      function: {
-        isIntegratedResponse: apigatewayConf.isIntegratedResponse === false ? false : true,
-        functionName: functionConf.name,
-        functionNamespace: functionConf.namespace,
-        functionQualifier: functionConf.needSetTraffic ? '$DEFAULT' : '$LATEST'
+  const tempApigwConf = inputs.apigatewayConf ? inputs.apigatewayConf : {}
+  const apigatewayConf = {
+    serviceId: inputs.serviceId,
+    region: regionList,
+    isDisabled: tempApigwConf.isDisabled === true,
+    fromClientRemark: fromClientRemark,
+    serviceName: inputs.serviceName || getDefaultServiceName(instance),
+    description: getDefaultServiceDescription(instance),
+    protocols: tempApigwConf.protocols || ['http'],
+    environment: tempApigwConf.environment ? tempApigwConf.environment : 'release',
+    endpoints: [
+      {
+        path: '/',
+        enableCORS: tempApigwConf.enableCORS,
+        serviceTimeout: tempApigwConf.serviceTimeout,
+        method: 'ANY',
+        function: {
+          isIntegratedResponse: true,
+          functionName: functionConf.name,
+          functionNamespace: functionConf.namespace
+        }
       }
-    }
-  ]
-  if (apigatewayConf.usagePlan) {
+    ],
+    customDomains: tempApigwConf.customDomains || []
+  }
+  if (tempApigwConf.usagePlan) {
     apigatewayConf.endpoints[0].usagePlan = {
-      usagePlanId: apigatewayConf.usagePlan.usagePlanId,
-      usagePlanName: apigatewayConf.usagePlan.usagePlanName,
-      usagePlanDesc: apigatewayConf.usagePlan.usagePlanDesc,
-      maxRequestNum: apigatewayConf.usagePlan.maxRequestNum
+      usagePlanId: tempApigwConf.usagePlan.usagePlanId,
+      usagePlanName: tempApigwConf.usagePlan.usagePlanName,
+      usagePlanDesc: tempApigwConf.usagePlan.usagePlanDesc,
+      maxRequestNum: tempApigwConf.usagePlan.maxRequestNum
     }
   }
-  if (apigatewayConf.auth) {
+  if (tempApigwConf.auth) {
     apigatewayConf.endpoints[0].auth = {
-      secretName: apigatewayConf.auth.secretName,
-      secretIds: apigatewayConf.auth.secretIds
+      secretName: tempApigwConf.auth.secretName,
+      secretIds: tempApigwConf.auth.secretIds
     }
   }
 
-  // 对cns inputs进行标准化
-  const tempCnsConf = {}
-  const tempCnsBaseConf = inputs.cloudDNSConf ? inputs.cloudDNSConf : {}
-
-  // 分地域处理functionConf/apigatewayConf/cnsConf
-  for (let i = 0; i < functionConf.region.length; i++) {
-    const curRegion = functionConf.region[i]
+  regionList.forEach((curRegion) => {
     const curRegionConf = inputs[curRegion]
     if (curRegionConf && curRegionConf.functionConf) {
       functionConf[curRegion] = curRegionConf.functionConf
@@ -351,63 +338,21 @@ const prepareInputs = async (instance, credentials, inputs = {}) => {
     if (curRegionConf && curRegionConf.apigatewayConf) {
       apigatewayConf[curRegion] = curRegionConf.apigatewayConf
     }
-
-    const tempRegionCnsConf = mergeJson(
-      tempCnsBaseConf,
-      curRegionConf && curRegionConf.cloudDNSConf ? curRegionConf.cloudDNSConf : {}
-    )
-
-    tempCnsConf[functionConf.region[i]] = {
-      recordType: 'CNAME',
-      recordLine: tempRegionCnsConf.recordLine ? tempRegionCnsConf.recordLine : undefined,
-      ttl: tempRegionCnsConf.ttl,
-      mx: tempRegionCnsConf.mx,
-      status: tempRegionCnsConf.status ? tempRegionCnsConf.status : 'enable'
-    }
-  }
-
-  const cnsConf = []
-  // 对cns inputs进行检查和赋值
-  if (apigatewayConf.customDomain && apigatewayConf.customDomain.length > 0) {
-    const domain = new Domain(credentials)
-    for (let domianNum = 0; domianNum < apigatewayConf.customDomain.length; domianNum++) {
-      const domainData = await domain.check(apigatewayConf.customDomain[domianNum].domain)
-      const tempInputs = {
-        domain: domainData.domain,
-        records: []
-      }
-      for (let eveRecordNum = 0; eveRecordNum < functionConf.region.length; eveRecordNum++) {
-        if (tempCnsConf[functionConf.region[eveRecordNum]].recordLine) {
-          tempInputs.records.push({
-            subDomain: domainData.subDomain || '@',
-            recordType: 'CNAME',
-            recordLine: tempCnsConf[functionConf.region[eveRecordNum]].recordLine,
-            value: `temp_value_about_${functionConf.region[eveRecordNum]}`,
-            ttl: tempCnsConf[functionConf.region[eveRecordNum]].ttl,
-            mx: tempCnsConf[functionConf.region[eveRecordNum]].mx,
-            status: tempCnsConf[functionConf.region[eveRecordNum]].status || 'enable'
-          })
-        }
-      }
-      cnsConf.push(tempInputs)
-    }
-  }
+  })
 
   return {
     regionList,
     functionConf,
-    apigatewayConf,
-    cnsConf
+    apigatewayConf
   }
 }
 
 module.exports = {
+  deepClone,
   generateId,
   uploadCodeToCos,
-  packageCode,
   mergeJson,
   capitalString,
   getDefaultProtocol,
-  deleteRecord,
   prepareInputs
 }
