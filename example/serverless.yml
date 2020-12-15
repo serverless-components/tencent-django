@@ -1,19 +1,28 @@
-component: django
-name: djangoDemo
 org: orgDemo
 app: appDemo
 stage: dev
 
+component: django
+name: djangoDemo
+
 inputs:
   region: ap-guangzhou
-  djangoProjectName: mydjangocomponent
-  src: ./src
+  djangoProjectName: djangodemo
+  src:
+     # TODO: 安装python项目依赖到项目 requirements 目录
+    hook: 'pip3 install -r requirements.txt -t ./requirements'
+    dist: ./
+    include:
+      # 执行包含依赖的 requestments 目录，并且将路径 /requirements 修改为 /
+      - source: ./requirements
+        prefix: ../ # prefix, can make ./requirements files/dir to ./
+    exclude:
+      - .env
+      - 'requirements/**'
+      - '__pycache__/**'
   functionConf:
     timeout: 10
     memorySize: 256
-    environment:
-      variables:
-        TEST: vale
   apigatewayConf:
     protocols:
       - https
