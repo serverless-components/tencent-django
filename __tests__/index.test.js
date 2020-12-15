@@ -1,5 +1,8 @@
 const { generateId, getServerlessSdk } = require('./lib/utils')
 const path = require('path')
+const execSync = require('child_process').execSync
+
+const srcPath = path.join(__dirname, '..', 'example')
 
 const instanceYaml = {
   org: 'orgDemo',
@@ -8,8 +11,17 @@ const instanceYaml = {
   name: `django-integration-tests-${generateId()}`,
   stage: 'dev',
   inputs: {
-    djangoProjectName: 'mydjangocomponent',
-    src: path.join(__dirname, '..', 'example/src'),
+    djangoProjectName: 'djangodemo',
+    src: {
+      src: srcPath,
+      exclude: ['.env'],
+      include: [
+        {
+          source: './requirements',
+          target: '../'
+        }
+      ]
+    },
     region: 'ap-guangzhou',
     apigatewayConf: { environment: 'test' }
   }
@@ -25,6 +37,7 @@ const credentials = {
 const sdk = getServerlessSdk(instanceYaml.org)
 
 it('should successfully deploy django app', async () => {
+  execSync(`python3 -u -m pip install -r requirements.txt -t ./requirements`, { cwd: srcPath })
   const instance = await sdk.deploy(instanceYaml, credentials)
   expect(instance).toBeDefined()
   expect(instance.instanceName).toEqual(instanceYaml.name)
