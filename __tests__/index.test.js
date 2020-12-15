@@ -1,34 +1,31 @@
-const { generateId, getServerlessSdk } = require('./utils')
-const { join } = require('path')
+const { generateId, getServerlessSdk } = require('./lib/utils')
+const path = require('path')
 
-// set enough timeout for deployment to finish
-jest.setTimeout(300000)
-
-// the yaml file we're testing against
 const instanceYaml = {
   org: 'orgDemo',
   app: 'appDemo',
-  component: 'django',
+  component: 'django@dev',
   name: `django-integration-tests-${generateId()}`,
   stage: 'dev',
   inputs: {
     djangoProjectName: 'mydjangocomponent',
-    src: join(__dirname, '..', 'example/src'),
+    src: path.join(__dirname, '..', 'example/src'),
     region: 'ap-guangzhou',
     apigatewayConf: { environment: 'test' }
   }
 }
 
-// get credentials from process.env but need to init empty credentials object
 const credentials = {
-  tencent: {}
+  tencent: {
+    SecretId: process.env.TENCENT_SECRET_ID,
+    SecretKey: process.env.TENCENT_SECRET_KEY,
+  }
 }
 
-// get serverless construct sdk
 const sdk = getServerlessSdk(instanceYaml.org)
 
 it('should successfully deploy django app', async () => {
-  const instance = await sdk.deploy(instanceYaml, { tencent: {} })
+  const instance = await sdk.deploy(instanceYaml, credentials)
   expect(instance).toBeDefined()
   expect(instance.instanceName).toEqual(instanceYaml.name)
   expect(instance.outputs).toBeDefined()

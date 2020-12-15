@@ -1,8 +1,9 @@
-component: django
-name: djangoDemo
 org: orgDemo
 app: appDemo
 stage: dev
+
+component: django
+name: djangoDemo
 
 inputs:
   region: ap-guangzhou
