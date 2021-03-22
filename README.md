@@ -1,3 +1,5 @@
+⚠️⚠️⚠️ 所有框架组件项目迁移到 [tencent-framework-components](https://github.com/serverless-components/tencent-framework-components).
+
 [![Serverless Django Tencent Cloud](https://img.serverlesscloud.cn/202031/1583057395084-django_%E9%95%BF.png)](http://serverless.com)
 
 # 腾讯云 Django Serverless Component
